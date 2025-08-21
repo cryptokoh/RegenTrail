@@ -1,0 +1,32 @@
+{
+  "name": "Regen Trail",
+  "short_name": "RegenTrail",
+  "description": "A regenerative Web3 eco game. Click, grow, and regenerate the world!",
+  "theme_color": "#065f46",
+  "background_color": "#064e3b",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "social", "finance"],
+  "shortcuts": [
+    {
+      "name": "Garden",
+      "url": "/?tab=garden",
+      "icons": [{ "src": "/vite.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Cookie Jar",
+      "url": "/?tab=cookiejar",
+      "icons": [{ "src": "/vite.svg", "sizes": "96x96" }]
+    }
+  ]
+}

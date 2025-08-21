@@ -54,19 +54,26 @@ export const GreenPillIntro: React.FC<GreenPillIntroProps> = ({ onStart }) => {
 
             <div className="space-y-6 text-left bg-black/20 p-8 rounded-xl border border-emerald-500/20">
               <p className="text-lg text-gray-300 leading-relaxed">
-                Welcome to the Regen Trail—a journey through the regenerative web3 ecosystem. 
-                Here, your actions ripple through digital forests, impact real communities, 
-                and shape the future of our planet.
+                <span className="text-emerald-400 font-semibold">Welcome to the Regen Trail</span>—inspired by Kevin Owocki's 
+                GreenPill movement and the regenerative cryptoeconomics revolution. This is your journey through the 
+                real-world ReFi ecosystem where blockchain meets regeneration.
               </p>
 
               <p className="text-lg text-gray-300 leading-relaxed">
-                From ETHDenver's snow-capped peaks to the vibrant halls of ETHcc Paris, 
-                you'll explore a world where technology meets ecology. Fund impactful projects, 
-                grow your own digital garden, and join a global community of regenerators.
+                Travel from <span className="text-purple-400">ETHDenver's Schelling Point</span> to the 
+                <span className="text-blue-400">ReFi Summit in Rio</span>, participate in 
+                <span className="text-emerald-400">Gitcoin Grants rounds</span>, and support real projects like 
+                KlimaDAO, Toucan Protocol, and Regen Network that are actively healing our planet.
+              </p>
+
+              <p className="text-lg text-gray-300 leading-relaxed">
+                Join the Solarpunk revolution! Build regenerative economies, fund public goods through 
+                quadratic funding, and become part of a movement creating positive externalities for the world. 
+                As the GreenPill book says: <em>"It's time to use crypto to regenerate the world."</em>
               </p>
 
               <p className="text-lg text-emerald-400 font-medium">
-                Are you ready to make your mark on the regenerative future?
+                🌱 Are you ready to go GreenPilled and join the regenerative revolution?
               </p>
             </div>
 

@@ -18,6 +18,7 @@ import { QuadraticStream } from './components/QuadraticStream';
 import { GreenPillIntro } from './components/GreenPillIntro';
 import { Leaderboard } from './components/Leaderboard';
 import { UserSetup } from './components/UserSetup';
+import { MobileNav } from './components/MobileNav';
 import { useGameStore } from './store/gameStore';
 import { useUserStore } from './store/userStore';
 
@@ -40,16 +41,41 @@ const App: React.FC = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isFarcasterFrame, setIsFarcasterFrame] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const logs = useGameStore((state) => state.logs);
   const { addUser } = useUserStore();
 
   useEffect(() => {
+    // Detect if running in Farcaster frame
+    const checkFarcasterFrame = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const inFrame = urlParams.get('frame') === 'true' || 
+                     window.location.hostname.includes('farcaster') ||
+                     window.self !== window.top;
+      setIsFarcasterFrame(inFrame);
+    };
+    
+    // Detect mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 
+                  ('ontouchstart' in window) ||
+                  (navigator.maxTouchPoints > 0));
+    };
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 100);
     };
-
+    
+    checkFarcasterFrame();
+    checkMobile();
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   useEffect(() => {
@@ -90,7 +116,9 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-emerald-950 via-emerald-900 to-purple-900 text-white">
+    <div className={`min-h-screen bg-gradient-to-r from-emerald-950 via-emerald-900 to-purple-900 text-white ${
+      isFarcasterFrame ? 'farcaster-frame' : ''
+    } ${isMobile ? 'mobile-device' : 'desktop-device'}`}>
       <Toaster 
         position="top-right" 
         closeButton
@@ -106,47 +134,50 @@ const App: React.FC = () => {
       <QuadraticStream />
 
       {/* Mobile Header */}
-      <div className="sticky top-0 z-20 bg-gray-900/95 backdrop-blur-sm border-b border-emerald-500/20 p-4">
+      <div className={`sticky top-0 z-20 bg-gray-900/95 backdrop-blur-sm border-b border-emerald-500/20 ${isMobile ? 'p-3' : 'p-4'} safe-top`}>
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-emerald-400">Regen Trail</h1>
-            <p className="text-xs text-gray-400 italic">A HAND Experience</p>
+          <div className="flex-1 min-w-0">
+            <h1 className={`font-bold text-emerald-400 truncate ${isMobile ? 'text-xl' : 'text-2xl'}`}>Regen Trail</h1>
+            {!isFarcasterFrame && <p className="text-xs text-gray-400 italic">A HAND Experience</p>}
           </div>
-          <div className="flex items-center gap-2">
-            <ConnectWallet />
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden p-2 hover:bg-emerald-500/10 rounded-lg transition-colors"
-            >
-              {showMobileMenu ? (
-                <X className="text-emerald-400" size={24} />
-              ) : (
-                <Menu className="text-emerald-400" size={24} />
-              )}
-            </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {!isFarcasterFrame && <ConnectWallet />}
+            {isMobile && (
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 hover:bg-emerald-500/10 rounded-lg transition-colors touch-manipulation"
+                aria-label="Toggle menu"
+              >
+                {showMobileMenu ? (
+                  <X className="text-emerald-400" size={24} />
+                ) : (
+                  <Menu className="text-emerald-400" size={24} />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Emoji Tab Navigation */}
-      <div className={`sticky top-[73px] z-10 transition-all duration-300 ${
+      <div className={`sticky ${isMobile ? 'top-[60px]' : 'top-[73px]'} z-10 transition-all duration-300 ${
         isScrolled 
           ? 'bg-gray-900/95 backdrop-blur-sm border-b border-emerald-500/20' 
           : 'bg-transparent'
-      }`}>
-        <div className="flex justify-center gap-2 p-2">
+      } ${isMobile ? '' : 'hidden md:block'}`}>
+        <div className={`flex ${isMobile ? 'overflow-x-auto scrollbar-hide' : 'justify-center'} gap-2 p-2`}>
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`p-2 rounded-lg transition-all duration-300 relative group ${
+              className={`${isMobile ? 'p-3' : 'p-2'} rounded-lg transition-all duration-300 relative group flex-shrink-0 touch-manipulation ${
                 activeTab === tab.id
                   ? 'bg-emerald-500/20 scale-110'
-                  : 'hover:bg-emerald-500/10'
+                  : 'hover:bg-emerald-500/10 active:bg-emerald-500/20'
               }`}
               title={tab.fullLabel}
             >
-              <span className="text-2xl">{tab.label}</span>
+              <span className={`${isMobile ? 'text-xl' : 'text-2xl'}`}>{tab.label}</span>
               <span className={`absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-xs text-emerald-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                 isScrolled ? 'hidden' : ''
               }`}>
@@ -158,9 +189,21 @@ const App: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-4">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="grid md:grid-cols-[1fr,300px] gap-8">
+      <div className={`${isMobile ? 'p-3 pb-20' : 'p-4'} ${isFarcasterFrame ? 'pb-2' : ''}`}>
+        <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
+          {/* Mobile Stats Bar */}
+          {isMobile && (
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              <div className="flex-shrink-0">
+                <PointsDisplay />
+              </div>
+              <div className="flex-shrink-0">
+                <CookieJar />
+              </div>
+            </div>
+          )}
+          
+          <div className={`grid ${isMobile ? 'grid-cols-1' : 'md:grid-cols-[1fr,300px]'} gap-6 md:gap-8`}>
             <div className="space-y-8" style={{ viewTransitionName: 'tab-content' }}>
               {activeTab === 'locations' && <LocationsTab />}
               {activeTab === 'events' && <EventsTab />}
@@ -173,19 +216,23 @@ const App: React.FC = () => {
               {activeTab === 'tales' && <TrailTalesTab />}
             </div>
 
-            <div className="space-y-8 fade-background">
-              <PointsDisplay />
-              <CookieJar />
-              <ConsoleLog logs={logs} onProposalClick={() => setShowProposalModal(true)} />
-              <Leaderboard />
-            </div>
+            {!isMobile && (
+              <div className="space-y-8 fade-background">
+                <PointsDisplay />
+                <CookieJar />
+                <ConsoleLog logs={logs} onProposalClick={() => setShowProposalModal(true)} />
+                <Leaderboard />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 text-xs text-gray-500 italic">
-        Disclaimer: This is meant to be educational and fun. Have you taken the green pill? 🌱
-      </div>
+      {!isFarcasterFrame && !isMobile && (
+        <div className="fixed bottom-4 right-4 text-xs text-gray-500 italic safe-bottom">
+          Disclaimer: This is meant to be educational and fun. Have you taken the green pill? 🌱
+        </div>
+      )}
 
       {/* Modals */}
       {(showMobileMenu || showProposalModal) && (
@@ -221,11 +268,18 @@ const App: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Bottom Navigation */}
+      <MobileNav 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange}
+        isFarcasterFrame={isFarcasterFrame}
+      />
+      
       {/* Proposal Modal */}
       {showProposalModal && (
         <div className="modal-content">
           <div 
-            className="bg-gray-800 rounded-xl p-6 max-w-md w-full" 
+            className={`bg-gray-800 rounded-xl ${isMobile ? 'p-4 mx-4' : 'p-6'} max-w-md w-full`} 
             onClick={e => e.stopPropagation()}
           >
             <h3 className="text-xl font-semibold text-emerald-400 mb-4">Active Proposal</h3>

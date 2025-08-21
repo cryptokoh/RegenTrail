@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 export const CookieJar: React.FC = () => {
   const { handBalance, donateHand, addHand } = useGameStore();
+  const isMobile = window.innerWidth <= 768;
 
   const handleDonate = () => {
     const amount = Math.min(50, handBalance.balance);
@@ -25,6 +26,32 @@ export const CookieJar: React.FC = () => {
     });
   };
 
+  // Mobile compact view
+  if (isMobile) {
+    return (
+      <div className="flex items-center gap-3 bg-black/20 rounded-xl p-2 border border-emerald-500/20 backdrop-blur-sm">
+        <HandHeart
+          size={32}
+          className="text-emerald-400 cursor-pointer hover:text-emerald-500 transition-transform hover:scale-110 animate-pulse touch-manipulation"
+          onClick={handleClick}
+        />
+        <div className="flex-1 flex items-center justify-between">
+          <div>
+            <div className="text-lg font-bold text-emerald-400">{handBalance.balance} 🖐️</div>
+            <div className="text-xs text-gray-400">Lent: {handBalance.donated}</div>
+          </div>
+          <button
+            onClick={handleDonate}
+            className="px-3 py-1 text-xs bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-emerald-400 font-medium touch-manipulation active:bg-emerald-500/30"
+          >
+            Lend 🖐️
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop view
   return (
     <div className="text-center">
       <HandHeart
